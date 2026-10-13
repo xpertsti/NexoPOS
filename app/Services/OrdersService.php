@@ -1111,7 +1111,13 @@ class OrdersService
             ->toFloat();
 
         $order->total_with_tax = $order->total;
-        $order->total_cogs = collect( $products )->sum( 'cogs' );
+        
+        /*$order->total_cogs = collect( $products )->sum( 'cogs' );*/
+        $order->total_cogs = collect( $products )->sum( function ( array $product ): float {
+            return Currency::fresh( $product['cogs'] ?? 0 )
+                ->multipliedBy( $product['quantity'] ?? 0 )
+                ->toFloat();
+        } );
 
         /**
          * compute change
